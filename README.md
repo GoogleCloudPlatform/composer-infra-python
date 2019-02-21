@@ -1,10 +1,9 @@
-# Infrastructure Automation with Cloud Composer
+# Automating infrastructure with Cloud Composer
 
 This solution tutorial demonstrates a method to automate cloud infrastructure using [Cloud Composer](https://cloud.google.com/composer/).
 As a practical example we have chosen to show how to schedule automated backups of  [Compute Engine](https://cloud.google.com/compute/) virtual machine instances.
 
-Please refer to the article for the steps to run the code:
-[SOLUTION URL]
+Please refer to [the solution article](https://cloud.google.com/solutions/automating-infrastructure-using-cloud-composer) for the steps to run the code.
 
 ## Contents of this repository
 
