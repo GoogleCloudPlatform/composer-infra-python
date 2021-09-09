@@ -17,7 +17,7 @@
 import datetime
 from airflow import DAG
 from airflow.models import Variable
-from airflow.operators import OperationStatusSensor
+from gcp_custom_ops.gce_commands import OperationStatusSensor
 from gcp_custom_ops.gce_commands import SnapshotDiskOperator
 from gcp_custom_ops.gce_commands import StartInstanceOperator
 from gcp_custom_ops.gce_commands import StopInstanceOperator
