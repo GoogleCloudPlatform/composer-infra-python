@@ -19,7 +19,6 @@ import datetime
 import logging
 import time
 from airflow.models import BaseOperator
-from airflow.plugins_manager import AirflowPlugin
 from airflow.utils.decorators import apply_defaults
 import googleapiclient.discovery
 from oauth2client.client import GoogleCredentials
@@ -112,11 +111,3 @@ class StartInstanceOperator(BaseOperator):
         project=self.project, zone=self.zone, instance=self.instance).execute()
     time.sleep(20)
     # [END start_oper_no_xcom]
-
-
-class GoogleComputeEnginePlugin(AirflowPlugin):
-  """Expose Airflow operators."""
-
-  name = 'gce_commands_plugin'
-  operators = [StopInstanceOperator, SnapshotDiskOperator,
-               StartInstanceOperator]
