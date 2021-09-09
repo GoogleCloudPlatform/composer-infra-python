@@ -18,7 +18,6 @@ import datetime
 import logging
 from airflow.models import BaseOperator
 from airflow.operators.sensors import BaseSensorOperator
-from airflow.plugins_manager import AirflowPlugin
 from airflow.utils.decorators import apply_defaults
 import googleapiclient.discovery
 from oauth2client.client import GoogleCredentials
@@ -143,11 +142,3 @@ class OperationStatusSensor(BaseSensorOperator):
     else:
       logging.info("Waiting for task '%s' to complete", self.prior_task_id)
       return False
-
-
-class GoogleComputeEnginePlugin(AirflowPlugin):
-  """Expose Airflow operators and sensor."""
-
-  name = 'gce_commands_plugin'
-  operators = [StopInstanceOperator, SnapshotDiskOperator,
-               StartInstanceOperator, OperationStatusSensor]
