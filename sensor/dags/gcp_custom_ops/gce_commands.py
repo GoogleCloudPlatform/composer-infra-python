@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Airflow Plugin to backup a Compute Engine virtual machine instance."""
+"""Airflow custom operators to backup a Compute Engine virtual machine instance."""
 
 import datetime
 import logging
@@ -28,22 +28,24 @@ class StopInstanceOperator(BaseOperator):
 
   @apply_defaults
   def __init__(self, project, zone, instance, *args, **kwargs):
-    self.compute = self.get_compute_api_client()
+    self._compute = None
     self.project = project
     self.zone = zone
     self.instance = instance
     super(StopInstanceOperator, self).__init__(*args, **kwargs)
 
   def get_compute_api_client(self):
-    credentials = GoogleCredentials.get_application_default()
-    return googleapiclient.discovery.build(
+    if self._compute is None:
+      credentials = GoogleCredentials.get_application_default()
+      self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
+      return self._compute
 
   def execute(self, context):
     logging.info('Stopping instance %s in project %s and zone %s',
                  self.instance, self.project, self.zone)
     # [START stop_oper_xcom]
-    operation = self.compute.instances().stop(
+    operation = self.get_compute_api_client().instances().stop(
         project=self.project, zone=self.zone, instance=self.instance).execute()
     return operation['name']
     # [END stop_oper_xcom]
@@ -54,7 +56,7 @@ class SnapshotDiskOperator(BaseOperator):
 
   @apply_defaults
   def __init__(self, project, zone, instance, disk, *args, **kwargs):
-    self.compute = self.get_compute_api_client()
+    self._compute = None
     self.project = project
     self.zone = zone
     self.instance = instance
@@ -62,9 +64,11 @@ class SnapshotDiskOperator(BaseOperator):
     super(SnapshotDiskOperator, self).__init__(*args, **kwargs)
 
   def get_compute_api_client(self):
-    credentials = GoogleCredentials.get_application_default()
-    return googleapiclient.discovery.build(
+    if self._compute is None:
+      credentials = GoogleCredentials.get_application_default()
+      self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
+      return self._compute
 
   def generate_snapshot_name(self, instance):
     # Snapshot name must match regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)'
@@ -78,7 +82,7 @@ class SnapshotDiskOperator(BaseOperator):
          "zone=%s}"),
         snapshot_name, self.disk, self.instance, self.project, self.zone)
     # [START snap_oper_xcom]
-    operation = self.compute.disks().createSnapshot(
+    operation = self.get_compute_api_client().disks().createSnapshot(
         project=self.project, zone=self.zone, disk=self.disk,
         body={'name': snapshot_name}).execute()
     return operation['name']
@@ -90,22 +94,24 @@ class StartInstanceOperator(BaseOperator):
 
   @apply_defaults
   def __init__(self, project, zone, instance, *args, **kwargs):
-    self.compute = self.get_compute_api_client()
+    self._compute = None
     self.project = project
     self.zone = zone
     self.instance = instance
     super(StartInstanceOperator, self).__init__(*args, **kwargs)
 
   def get_compute_api_client(self):
-    credentials = GoogleCredentials.get_application_default()
-    return googleapiclient.discovery.build(
+    if self._compute is None:
+      credentials = GoogleCredentials.get_application_default()
+      self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
+      return self._compute
 
   def execute(self, context):
     logging.info('Starting instance %s in project %s and zone %s',
                  self.instance, self.project, self.zone)
     # [START start_oper_xcom]
-    operation = self.compute.instances().start(
+    operation = self.get_compute_api_client().instances().start(
         project=self.project, zone=self.zone, instance=self.instance).execute()
     return operation['name']
     # [END start_oper_xcom]
@@ -116,7 +122,7 @@ class OperationStatusSensor(BaseSensorOperator):
 
   @apply_defaults
   def __init__(self, project, zone, instance, prior_task_id, *args, **kwargs):
-    self.compute = self.get_compute_api_client()
+    self._compute = None
     self.project = project
     self.zone = zone
     self.instance = instance
@@ -124,14 +130,16 @@ class OperationStatusSensor(BaseSensorOperator):
     super(OperationStatusSensor, self).__init__(*args, **kwargs)
 
   def get_compute_api_client(self):
-    credentials = GoogleCredentials.get_application_default()
-    return googleapiclient.discovery.build(
+    if self._compute is None:
+      credentials = GoogleCredentials.get_application_default()
+      self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
+      return self._compute
 
   def poke(self, context):
     operation_name = context['task_instance'].xcom_pull(
         task_ids=self.prior_task_id)
-    result = self.compute.zoneOperations().get(
+    result = self.get_compute_api_client().zoneOperations().get(
         project=self.project, zone=self.zone,
         operation=operation_name).execute()
 
