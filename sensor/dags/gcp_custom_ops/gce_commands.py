@@ -39,7 +39,7 @@ class StopInstanceOperator(BaseOperator):
       credentials = GoogleCredentials.get_application_default()
       self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
-      return self._compute
+    return self._compute
 
   def execute(self, context):
     logging.info('Stopping instance %s in project %s and zone %s',
@@ -68,7 +68,7 @@ class SnapshotDiskOperator(BaseOperator):
       credentials = GoogleCredentials.get_application_default()
       self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
-      return self._compute
+    return self._compute
 
   def generate_snapshot_name(self, instance):
     # Snapshot name must match regex '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)'
@@ -105,7 +105,7 @@ class StartInstanceOperator(BaseOperator):
       credentials = GoogleCredentials.get_application_default()
       self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
-      return self._compute
+    return self._compute
 
   def execute(self, context):
     logging.info('Starting instance %s in project %s and zone %s',
@@ -134,7 +134,7 @@ class OperationStatusSensor(BaseSensorOperator):
       credentials = GoogleCredentials.get_application_default()
       self._compute = googleapiclient.discovery.build(
         'compute', 'v1', cache_discovery=False, credentials=credentials)
-      return self._compute
+    return self._compute
 
   def poke(self, context):
     operation_name = context['task_instance'].xcom_pull(
