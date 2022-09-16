@@ -17,7 +17,7 @@
 import datetime
 import logging
 from airflow.models import BaseOperator
-from airflow.operators.sensors import BaseSensorOperator
+from airflow.sensors.base import BaseSensorOperator
 from airflow.utils.decorators import apply_defaults
 import googleapiclient.discovery
 from oauth2client.client import GoogleCredentials
